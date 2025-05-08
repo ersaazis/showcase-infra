@@ -37,34 +37,6 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   ingress {
-    from_port   = 3022
-    to_port     = 3022
-    protocol    = "tcp"
-    cidr_blocks = [data.terraform_remote_state.control_plane_vpc.outputs.vpc_cidr, data.terraform_remote_state.production_vpc.outputs.vpc_cidr]
-  }
-
-  ingress {
-    from_port   = 3023
-    to_port     = 3023
-    protocol    = "tcp"
-    cidr_blocks = [data.terraform_remote_state.control_plane_vpc.outputs.vpc_cidr, data.terraform_remote_state.production_vpc.outputs.vpc_cidr]
-  }
-
-  ingress {
-    from_port   = 3024
-    to_port     = 3024
-    protocol    = "tcp"
-    cidr_blocks = [data.terraform_remote_state.control_plane_vpc.outputs.vpc_cidr, data.terraform_remote_state.production_vpc.outputs.vpc_cidr]
-  }
-
-  ingress {
-    from_port   = 3025
-    to_port     = 3025
-    protocol    = "tcp"
-    cidr_blocks = [data.terraform_remote_state.control_plane_vpc.outputs.vpc_cidr, data.terraform_remote_state.production_vpc.outputs.vpc_cidr]
-  }
-
-  ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
