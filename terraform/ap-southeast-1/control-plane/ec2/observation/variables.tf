@@ -6,7 +6,7 @@ variable "instance_type" {
 variable "instance_name" {
   description = "The name of the EC2 instance."
   type        = string
-  default     = "observation"
+  default     = "control-plane-observation"
 }
 variable "region" {
   description = "The AWS region to launch the instance in."
