@@ -2,7 +2,7 @@ output "vpc_id" {
   value = aws_vpc.control_plane.id
 }
 
-output "subnet_ids" {
+output "public_subnets" {
   value = aws_subnet.control_plane_public[*].id
 }
 
@@ -20,4 +20,12 @@ output "route_table_id" {
 
 output "internet_gateway_id" {
   value = aws_internet_gateway.control_plane_internet_gateway.id
+}
+
+output "private_subnets" {
+  value = aws_subnet.control_plane_private[*].id
+}
+
+output "availability_zones" {
+  value = data.aws_availability_zones.available.names
 }

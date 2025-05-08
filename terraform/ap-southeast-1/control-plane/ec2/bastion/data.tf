@@ -1,7 +1,3 @@
-# data.tf
-
-data "aws_caller_identity" "current" {} # used for accesing Account ID and ARN
-
 data "aws_ami" "ubuntu_24_04_lts" {
   most_recent = true
   owners      = ["amazon"]
@@ -12,25 +8,25 @@ data "aws_ami" "ubuntu_24_04_lts" {
   }
 }
 
-data "terraform_remote_state" "vpc_control_plane_production" {
+data "terraform_remote_state" "control_plane_vpc" {
   backend = "s3"
   config = {
-    bucket  = "bwr-terraform-state-store-control-plane-bucket"
-     key    = "terraform/aws/ap-northeast-1/control-plane/vpc/control-plane-production/terraform.tfstate"
-    region  = "ap-northeast-1"
+    bucket = "digdat-terraform-state-storage"
+    key    = "terraform/control-plane/vpc/vpc-control-plane.tfstate"
+    region = "ap-southeast-1"
   }
 }
 
-data "terraform_remote_state" "iam_ec2_ssm_encrypted_session" {
+data "terraform_remote_state" "production_vpc" {
   backend = "s3"
   config = {
-    bucket = "bwr-terraform-state-store-control-plane-bucket"
-    key    = "terraform/aws/ap-northeast-1/control-plane/iam/iam-ec2-ssm-encrypted-session/terraform.tfstate"
-    region = "ap-northeast-1"
+    bucket = "digdat-terraform-state-storage"
+    key    = "terraform/production/vpc/vpc-production.tfstate"
+    region = "ap-southeast-1"
   }
 }
 
-data "template_cloudinit_config" "proxy_production_init" {
+data "template_cloudinit_config" "init" {
   gzip          = true
   base64_encode = true
 
@@ -46,6 +42,6 @@ data "template_cloudinit_config" "proxy_production_init" {
 
   part {
     content_type = "text/x-shellscript"
-    content      = file("${path.module}/cloud_init/squid_init.sh")
+    content      = file("${path.module}/cloud_init/docker_install.sh")
   }
 }
