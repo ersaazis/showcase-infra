@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket         = "digdat-terraform-state-storage"
-    key            = "terraform/production/ec2/bastion.tfstate"
+    key            = "terraform/control-plane/ec2/bastion.tfstate"
     region         = "ap-southeast-1"
     encrypt        = true
     dynamodb_table = "terraform-locks"

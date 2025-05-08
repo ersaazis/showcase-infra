@@ -44,4 +44,9 @@ data "template_cloudinit_config" "init" {
     content_type = "text/x-shellscript"
     content      = file("${path.module}/cloud_init/docker_install.sh")
   }
+
+  part {
+    content_type = "text/x-shellscript"
+    content      = file("${path.module}/cloud_init/ssm_install.sh")
+  }
 }

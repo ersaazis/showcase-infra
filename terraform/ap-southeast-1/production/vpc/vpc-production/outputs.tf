@@ -10,8 +10,12 @@ output "vpc_cidr" {
   value = aws_vpc.production.cidr_block
 }
 
-output "route_table_id" {
-  value = aws_route_table.production_route_table.id
+output "public_route_table" {
+  value = aws_route_table.production_public_route_table.id
+}
+
+output "private_route_table" {
+  value = aws_route_table.production_private_route_table.id
 }
 
 output "internet_gateway_id" {

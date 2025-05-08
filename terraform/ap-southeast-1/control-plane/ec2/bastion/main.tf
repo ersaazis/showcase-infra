@@ -1,6 +1,7 @@
 resource "aws_instance" "ec2" {
   ami                  = data.aws_ami.ubuntu_24_04_lts.id
   instance_type        = var.instance_type
+  iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
   availability_zone    = element(data.terraform_remote_state.control_plane_vpc.outputs.availability_zones, 0)
   subnet_id            = element(data.terraform_remote_state.control_plane_vpc.outputs.private_subnets, 0)
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
@@ -12,7 +13,7 @@ resource "aws_instance" "ec2" {
     throughput  = 125
     volume_size = 80
     tags = {
-      Name      = "${var.instance_type}-root-block-device"
+      Name      = "${var.instance_name}-root-block-device"
       Environment = "infra"
     }
   }
@@ -24,15 +25,15 @@ resource "aws_instance" "ec2" {
 }
 
 resource "aws_security_group" "ec2_sg" {
-  name        = "${var.instance_type}-sg"
-  description = "${var.instance_type} security group"
+  name        = "${var.instance_name}-sg"
+  description = "${var.instance_name} security group"
   vpc_id      = data.terraform_remote_state.control_plane_vpc.outputs.vpc_id
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [data.terraform_remote_state.control_plane_vpc.outputs.vpc_cidr, data.terraform_remote_state.production_vpc.outputs.vpc_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -85,7 +86,79 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   tags = {
-    Name        = "${var.instance_type}-sg"
+    Name        = "${var.instance_name}-sg"
+    Environment = "infra"
+  }
+}
+
+resource "aws_iam_role" "ec2_ssm_role" {
+  name = "${var.instance_name}-ssm-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
+
+  tags = {
+    Name        = "${var.instance_name}-ssm-role"
+    Environment = "infra"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_policy_attachment" {
+  role       = aws_iam_role.ec2_ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "ec2_instance_profile" {
+  name = "${var.instance_name}-profile"
+  role = aws_iam_role.ec2_ssm_role.name
+}
+
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id            = data.terraform_remote_state.control_plane_vpc.outputs.vpc_id
+  service_name      = "com.amazonaws.${var.region}.ssm"
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = data.terraform_remote_state.control_plane_vpc.outputs.private_subnets
+  security_group_ids = [aws_security_group.ec2_sg.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.instance_name}-ssm-endpoint"
+    Environment = "infra"
+  }
+}
+
+resource "aws_vpc_endpoint" "ssmmessages" {
+  vpc_id            = data.terraform_remote_state.control_plane_vpc.outputs.vpc_id
+  service_name      = "com.amazonaws.${var.region}.ssmmessages"
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = data.terraform_remote_state.control_plane_vpc.outputs.private_subnets
+  security_group_ids = [aws_security_group.ec2_sg.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.instance_name}-ssmmessages-endpoint"
+    Environment = "infra"
+  }
+}
+
+resource "aws_vpc_endpoint" "ec2messages" {
+  vpc_id            = data.terraform_remote_state.control_plane_vpc.outputs.vpc_id
+  service_name      = "com.amazonaws.${var.region}.ec2messages"
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = data.terraform_remote_state.control_plane_vpc.outputs.private_subnets
+  security_group_ids = [aws_security_group.ec2_sg.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.instance_name}-ec2messages-endpoint"
     Environment = "infra"
   }
 }

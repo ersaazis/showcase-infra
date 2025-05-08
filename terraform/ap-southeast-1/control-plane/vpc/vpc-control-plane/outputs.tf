@@ -10,12 +10,12 @@ output "vpc_cidr" {
   value = aws_vpc.control_plane.cidr_block
 }
 
-output "route_table" {
-  value = aws_route_table.control_plane_route_table.id
+output "public_route_table" {
+  value = aws_route_table.control_plane_public_route_table.id
 }
 
-output "route_table_id" {
-  value = aws_route_table.control_plane_route_table.id
+output "private_route_table" {
+  value = aws_route_table.control_plane_private_route_table.id
 }
 
 output "internet_gateway_id" {
