@@ -2,8 +2,8 @@ resource "aws_instance" "ec2" {
   ami                  = data.aws_ami.ubuntu_24_04_lts.id
   instance_type        = var.instance_type
   iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
-  availability_zone    = element(data.terraform_remote_state.control_plane_vpc.outputs.availability_zones, 0)
-  subnet_id            = element(data.terraform_remote_state.control_plane_vpc.outputs.public_subnets, 0)
+  availability_zone    = element(data.terraform_remote_state.production_vpc.outputs.availability_zones, 0)
+  subnet_id            = element(data.terraform_remote_state.production_vpc.outputs.public_subnets, 0)
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   user_data            = data.template_cloudinit_config.init.rendered
   associate_public_ip_address = true
@@ -28,7 +28,7 @@ resource "aws_instance" "ec2" {
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.instance_name}-sg"
   description = "${var.instance_name} security group"
-  vpc_id      = data.terraform_remote_state.control_plane_vpc.outputs.vpc_id
+  vpc_id      = data.terraform_remote_state.production_vpc.outputs.vpc_id
 
   egress {
     from_port   = 0
@@ -41,7 +41,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [data.terraform_remote_state.control_plane_vpc.outputs.vpc_cidr]
+    cidr_blocks = [data.terraform_remote_state.production_vpc.outputs.vpc_cidr]
   }
 
   ingress {
