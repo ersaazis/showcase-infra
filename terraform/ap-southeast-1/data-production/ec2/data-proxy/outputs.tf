@@ -27,3 +27,13 @@ output "ec2_ssm_role_arn" {
   description = "ARN from IAM role EC2 SSM"
   value       = aws_iam_role.ec2_ssm_role.arn
 }
+
+output "ec2_instance_profile_arn" {
+  description = "The ARN of the EC2 Instance Profile"
+  value       = aws_iam_instance_profile.ec2_instance_profile.arn
+}
+
+output "ec2_instance_profile_name" {
+  description = "The name of the EC2 Instance Profile"
+  value       = aws_iam_instance_profile.ec2_instance_profile.name
+}

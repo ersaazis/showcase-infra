@@ -56,6 +56,7 @@ resource "aws_db_instance" "mysql" {
   skip_final_snapshot     = true
   deletion_protection     = false
   backup_retention_period = 7
+  iam_database_authentication_enabled = true
 
   tags = {
     Name        = var.db_identifier
