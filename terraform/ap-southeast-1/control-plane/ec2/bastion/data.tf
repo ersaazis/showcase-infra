@@ -26,6 +26,15 @@ data "terraform_remote_state" "production_vpc" {
   }
 }
 
+data "terraform_remote_state" "data_production_vpc" {
+  backend = "s3"
+  config = {
+    bucket = "digdat-terraform-state-storage"
+    key    = "terraform/data-production/vpc/vpc-data-production.tfstate"
+    region = "ap-southeast-1"
+  }
+}
+
 data "template_cloudinit_config" "init" {
   gzip          = true
   base64_encode = true
